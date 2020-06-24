@@ -6,11 +6,13 @@ on:
             - master
         paths:
           - '.github/scripts/*.sh'
+          - '.github/stack/*.yaml'
     pull_request:
         branches:
             - master
         paths:
           - '.github/scripts/*.sh'
+          - '.github/stack/*.yaml'
 jobs:
     linux:
         name: Linux Py${{ matrix.PYTHON_VERSION }}

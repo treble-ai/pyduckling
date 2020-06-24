@@ -1,0 +1,3 @@
+packages: []
+resolver:
+  compiler: ghc-8.6.5
