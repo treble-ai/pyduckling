@@ -1,4 +1,4 @@
 
 cd duckling-ffi
 stack build
-cp libduckling.so ../ext_lib
+cp libducklingffi.so ../ext_lib
