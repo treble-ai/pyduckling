@@ -16,7 +16,8 @@ name = "duckling"
 crate-type = ["cdylib"]
 
 [dependencies]
-curryrs = { git = "https://github.com/mgattozzi/curryrs/" }
+libc = "0.2"
+# curryrs = { git = "https://github.com/mgattozzi/curryrs/" }
 
 [dependencies.pyo3]
 version = "0.9.0"
