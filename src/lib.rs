@@ -32,8 +32,12 @@ static STOPPED: AtomicBool = AtomicBool::new(false);
 pub enum HaskellValue {}
 
 extern "C" {
-    pub fn wcurrentReftime(tzdb: *mut HaskellValue, strPtr: *const c_char)
-        -> *mut HaskellValue;
+    pub fn wparseRefTime(
+        tzdb: *mut HaskellValue,
+        tzStr: *const c_char,
+        timestamp: i64,
+    ) -> *mut HaskellValue;
+    pub fn wcurrentReftime(tzdb: *mut HaskellValue, strPtr: *const c_char) -> *mut HaskellValue;
     pub fn wloadTimeZoneSeries(path: *const c_char) -> *mut HaskellValue;
     pub fn stringCreate(s: *const c_char) -> *mut HaskellValue;
     pub fn stringDestroy(s: *mut HaskellValue);
@@ -77,13 +81,12 @@ pub fn stop() -> PyResult<()> {
         let err = "Haskell: The GHC runtime may only be stopped once. See \
       https://downloads.haskell.org/%7Eghc/latest/docs/html/users_guide\
       /ffi-chap.html#id1";
-      let exc = RuntimeStoppedError::py_err(err.to_string());
-      return Err(exc);
+        let exc = RuntimeStoppedError::py_err(err.to_string());
+        return Err(exc);
     }
     stop_hs();
     Ok(())
 }
-
 
 fn start_hs() {
     let mut argv = Vec::<*const c_char>::with_capacity(1);
@@ -210,7 +213,7 @@ impl PyGCProtocol for DucklingTimeWrapper {
 ///
 /// Returns
 /// -------
-/// tz_info:
+/// tz_info: TimeZoneDatabase
 ///     Opaque handle to a map of time zone data information in Haskell.
 #[pyfunction]
 fn load_time_zones(path: &str) -> PyResult<TimeZoneDatabaseWrapper> {
@@ -222,6 +225,19 @@ fn load_time_zones(path: &str) -> PyResult<TimeZoneDatabaseWrapper> {
     Ok(result)
 }
 
+/// Get current reference time, given a Olson time zone
+///
+/// Parameters
+/// ----------
+/// tz_db: TimeZoneDatabase
+///     Opaque handle to a map of time zone data information in Haskell
+/// tz: str
+///     Time zone name according to IANA
+///
+/// Returns
+/// -------
+/// ref_time: DucklingTime
+///     Opaque handle to a time reference in Haskell
 #[pyfunction]
 fn get_current_ref_time(tz_db: TimeZoneDatabaseWrapper, tz: &str) -> PyResult<DucklingTimeWrapper> {
     // let c_str = WrappedString::new(tz);
@@ -233,6 +249,32 @@ fn get_current_ref_time(tz_db: TimeZoneDatabaseWrapper, tz: &str) -> PyResult<Du
     Ok(result)
 }
 
+/// Parse a reference timestamp on a given Olson time zone
+///
+/// Parameters
+/// ----------
+/// tz_db: TimeZoneDatabase
+///     Opaque handle to a map of time zone data information in Haskell
+/// tz: str
+///     Time zone name according to IANA
+/// timestamp: int
+///     UNIX integer timestamp
+///
+/// Returns
+/// -------
+/// ref_time: DucklingTime
+///     Opaque handle to a time reference in Haskell
+#[pyfunction]
+fn parse_ref_time(
+    tz_db: TimeZoneDatabaseWrapper,
+    tz: &str,
+    timestamp: i64,
+) -> PyResult<DucklingTimeWrapper> {
+    let tz_c_str = CString::new(tz).expect("CString::new failed");
+    let haskell_tz = unsafe { wparseRefTime(tz_db.ptr, tz_c_str.as_ptr(), timestamp) };
+    let result = DucklingTimeWrapper { ptr: haskell_tz };
+    Ok(result)
+}
 
 /// This module is a python module implemented in Rust.
 #[pymodule]
@@ -240,6 +282,7 @@ fn duckling(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add("__version__", VERSION)?;
     m.add_wrapped(wrap_pyfunction!(load_time_zones))?;
     m.add_wrapped(wrap_pyfunction!(get_current_ref_time))?;
+    m.add_wrapped(wrap_pyfunction!(parse_ref_time))?;
     m.add_wrapped(wrap_pyfunction!(init))?;
     m.add_wrapped(wrap_pyfunction!(stop))?;
     m.add_class::<WrappedString>()?;
