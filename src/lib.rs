@@ -15,7 +15,7 @@ use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;
 use pyo3::PyTraverseError;
 
-use std::ffi::CString;
+use std::ffi::{CStr, CString};
 use std::os::raw::{c_char, c_int};
 use std::ptr;
 use std::slice;
@@ -34,6 +34,13 @@ pub enum HaskellValue {}
 
 extern "C" {
     // ----------------- Duckling API -----------------------------------
+    pub fn wparseText(
+        text: *const c_char,
+        reference_time: *mut HaskellValue,
+        locale: *mut HaskellValue,
+        dimensions: *mut HaskellValue,
+        with_latent: u8,
+    ) -> *const c_char;
     pub fn wparseDimensions(n: i32, dimensions: *const *const c_char) -> *mut HaskellValue;
     pub fn wparseLocale(
         locale: *const c_char,
@@ -50,8 +57,10 @@ extern "C" {
     pub fn wloadTimeZoneSeries(path: *const c_char) -> *mut HaskellValue;
     // ----------------- Duckling API -----------------------------------
     // Dimension list functions
-    pub fn dimensionListCreate(ptrs: *mut *mut HaskellValue, numElements: i32)
-        -> *mut HaskellValue;
+    pub fn dimensionListCreate(
+        ptrs: *const *mut HaskellValue,
+        numElements: i32,
+    ) -> *mut HaskellValue;
     pub fn dimensionListLength(dims: *mut HaskellValue) -> i32;
     pub fn dimensionListPtrs(dims: *mut HaskellValue) -> *mut *mut HaskellValue;
     pub fn dimensionListDestroy(dims: *mut HaskellValue);
@@ -151,6 +160,7 @@ impl PyGCProtocol for TimeZoneDatabaseWrapper {
 
 /// Handle to the time zone database stored by Duckling
 #[pyclass(name=DucklingTime)]
+#[derive(Debug, Clone)]
 pub struct DucklingTimeWrapper {
     ptr: *mut HaskellValue,
 }
@@ -217,6 +227,24 @@ impl PyGCProtocol for DimensionWrapper {
 
     fn __clear__(&mut self) {
         unsafe { dimensionDestroy(self.ptr) }
+    }
+}
+
+#[pyclass]
+#[derive(Debug, Clone)]
+pub struct Context {
+    pub reference_time: DucklingTimeWrapper,
+    pub locale: LocaleWrapper,
+}
+
+#[pymethods]
+impl Context {
+    #[new]
+    fn new(reference_time: DucklingTimeWrapper, locale: LocaleWrapper) -> Self {
+        Context {
+            reference_time: reference_time,
+            locale: locale,
+        }
     }
 }
 
@@ -358,6 +386,18 @@ fn parse_locale(locale: &str, default_locale: LocaleWrapper) -> PyResult<LocaleW
     Ok(result)
 }
 
+/// Parse a list of dimensions to use during parsing
+///
+/// Parameters
+/// ----------
+/// dims: List[str]
+///     A list containing valid parsing dimensions to use with Duckling. See
+///     :class:`DucklingDimensions` to see a list of valid dimensions to use.
+///
+/// Returns
+/// -------
+/// wrapped_dims: List[DimensionWrapper]
+///     A list of opaque handlers that describe the given dimensions in Duckling.
 #[pyfunction]
 fn parse_dimensions(dims: Vec<String>) -> PyResult<Vec<DimensionWrapper>> {
     let n_elems = dims.len() as i32;
@@ -382,6 +422,37 @@ fn parse_dimensions(dims: Vec<String>) -> PyResult<Vec<DimensionWrapper>> {
     Ok(result_vec)
 }
 
+#[pyfunction]
+fn parse_text(
+    text: &str,
+    context: Context,
+    dimensions: Vec<DimensionWrapper>,
+    with_latent: bool,
+) -> PyResult<String> {
+    let c_text = CString::new(text).expect("CString::new failed");
+    let reference_time = context.reference_time;
+    let locale = context.locale;
+    let n_elems = dimensions.len() as i32;
+    let c_dims: Vec<*mut HaskellValue> = dimensions.iter().map(|d| d.ptr).collect();
+    let dim_list = unsafe { dimensionListCreate(c_dims.as_ptr(), n_elems) };
+    let haskell_entities = unsafe {
+        wparseText(
+            c_text.as_ptr(),
+            reference_time.ptr,
+            locale.ptr,
+            dim_list,
+            with_latent as u8,
+        )
+    };
+    let string_result = unsafe {
+        CStr::from_ptr(haskell_entities)
+            .to_string_lossy()
+            .to_owned()
+            .to_string()
+    };
+    Ok(string_result)
+}
+
 /// This module is a python module implemented in Rust.
 #[pymodule]
 fn duckling(_py: Python, m: &PyModule) -> PyResult<()> {
@@ -393,9 +464,11 @@ fn duckling(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_wrapped(wrap_pyfunction!(default_locale_lang))?;
     m.add_wrapped(wrap_pyfunction!(parse_locale))?;
     m.add_wrapped(wrap_pyfunction!(parse_dimensions))?;
+    m.add_wrapped(wrap_pyfunction!(parse_text))?;
     m.add_wrapped(wrap_pyfunction!(init))?;
     m.add_wrapped(wrap_pyfunction!(stop))?;
     m.add_class::<TimeZoneDatabaseWrapper>()?;
+    m.add_class::<Context>()?;
     m.add_class::<DucklingTimeWrapper>()?;
     Ok(())
 }
