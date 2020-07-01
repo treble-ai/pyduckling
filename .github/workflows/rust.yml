@@ -2,17 +2,9 @@ name: Rust
 
 on:
   push:
-    branches:
-      - master
-    paths:
-      - ".github/scripts/*.sh"
-      - ".github/stack/*.yaml"
+    branches: [ master ]
   pull_request:
-    branches:
-      - master
-    paths:
-      - ".github/scripts/*.sh"
-      - ".github/stack/*.yaml"
+    branches: [ master ]
 
 env:
   CARGO_TERM_COLOR: always
@@ -60,4 +52,3 @@ jobs:
       - name: Build pyduckling
         shell: bash -l {0}
         run: bash -l .github/scripts/build_pyduckling.sh
-
