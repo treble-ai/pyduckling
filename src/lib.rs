@@ -15,9 +15,10 @@ use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;
 use pyo3::PyTraverseError;
 
-use std::ffi::{CStr, CString};
+use std::ffi::CString;
 use std::os::raw::{c_char, c_int};
 use std::ptr;
+use std::slice;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Once;
 
@@ -32,6 +33,14 @@ static STOPPED: AtomicBool = AtomicBool::new(false);
 pub enum HaskellValue {}
 
 extern "C" {
+    // ----------------- Duckling API -----------------------------------
+    pub fn wparseDimensions(n: i32, dimensions: *const *const c_char) -> *mut HaskellValue;
+    pub fn wparseLocale(
+        locale: *const c_char,
+        default_locale: *mut HaskellValue,
+    ) -> *mut HaskellValue;
+    pub fn wmakeDefaultLocale(lang: *mut HaskellValue) -> *mut HaskellValue;
+    pub fn wparseLang(lang: *const c_char) -> *mut HaskellValue;
     pub fn wparseRefTime(
         tzdb: *mut HaskellValue,
         tzStr: *const c_char,
@@ -39,11 +48,24 @@ extern "C" {
     ) -> *mut HaskellValue;
     pub fn wcurrentReftime(tzdb: *mut HaskellValue, strPtr: *const c_char) -> *mut HaskellValue;
     pub fn wloadTimeZoneSeries(path: *const c_char) -> *mut HaskellValue;
-    pub fn stringCreate(s: *const c_char) -> *mut HaskellValue;
-    pub fn stringDestroy(s: *mut HaskellValue);
-    pub fn stringGet(s: *mut HaskellValue) -> *const c_char;
+    // ----------------- Duckling API -----------------------------------
+    // Dimension list functions
+    pub fn dimensionListCreate(ptrs: *mut *mut HaskellValue, numElements: i32)
+        -> *mut HaskellValue;
+    pub fn dimensionListLength(dims: *mut HaskellValue) -> i32;
+    pub fn dimensionListPtrs(dims: *mut HaskellValue) -> *mut *mut HaskellValue;
+    pub fn dimensionListDestroy(dims: *mut HaskellValue);
+    // Dimension functions
+    pub fn dimensionDestroy(dim: *mut HaskellValue);
+    // Time zone database functions
     pub fn tzdbDestroy(db: *mut HaskellValue);
+    // Time reference wrapper functions
     pub fn duckTimeDestroy(time: *mut HaskellValue);
+    // Language wrapper functions
+    pub fn langDestroy(lang: *mut HaskellValue);
+    // Locale wrapper functions
+    pub fn localeDestroy(locale: *mut HaskellValue);
+    // Haskell runtime start/stop
     pub fn hs_init(argc: c_int, argv: *const *const c_char);
     pub fn hs_exit();
 }
@@ -100,57 +122,6 @@ extern "C" fn stop_hs() {
     STOP_ONCE.call_once(|| unsafe { hs_exit() });
 }
 
-/// Wraps a string into a C pointer valid from Haskell.
-///
-/// This class contains a reference to a string.
-#[pyclass(name=DucklingString)]
-// #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct WrappedString {
-    ptr: *mut HaskellValue,
-}
-
-#[pymethods]
-impl WrappedString {
-    #[new]
-    pub fn new(this_str: &str) -> Self {
-        let c_str = CString::new(this_str).expect("CString::new failed");
-        WrappedString {
-            ptr: unsafe { stringCreate(c_str.as_ptr()) },
-        }
-    }
-
-    /// Retrieve the string wrapped
-    #[getter]
-    pub fn value(&self) -> PyResult<&str> {
-        let c_str = unsafe { stringGet(self.ptr) };
-        let rust_c_str = unsafe {
-            CStr::from_ptr(c_str)
-                .to_str()
-                .expect("Error encoding string to UTF-8")
-        };
-        Ok(rust_c_str)
-    }
-}
-
-#[pyproto]
-impl PyGCProtocol for WrappedString {
-    fn __traverse__(&self, _visit: PyVisit) -> Result<(), PyTraverseError> {
-        Ok(())
-    }
-
-    fn __clear__(&mut self) {
-        unsafe { stringDestroy(self.ptr) }
-    }
-}
-
-impl Drop for WrappedString {
-    fn drop(&mut self) {
-        unsafe {
-            stringDestroy(self.ptr);
-        }
-    }
-}
-
 /// Handle to the time zone database stored by Duckling
 #[pyclass(name=TimeZoneDatabase)]
 #[derive(Debug, Clone)]
@@ -195,13 +166,59 @@ impl PyGCProtocol for DucklingTimeWrapper {
     }
 }
 
-// impl Drop for DucklingTimeWrapper {
-//     fn drop(&mut self) {
-//         unsafe {
-//             duckTimeDestroy(self.ptr);
-//         }
-//     }
-// }
+/// Handle to a language code stored by Duckling
+#[pyclass(name=Language)]
+#[derive(Debug, Clone)]
+pub struct LanguageWrapper {
+    ptr: *mut HaskellValue,
+}
+
+#[pyproto]
+impl PyGCProtocol for LanguageWrapper {
+    fn __traverse__(&self, _visit: PyVisit) -> Result<(), PyTraverseError> {
+        Ok(())
+    }
+
+    fn __clear__(&mut self) {
+        unsafe { langDestroy(self.ptr) }
+    }
+}
+
+/// Handle to a locale code stored by Duckling
+#[pyclass(name=Locale)]
+#[derive(Debug, Clone)]
+pub struct LocaleWrapper {
+    ptr: *mut HaskellValue,
+}
+
+#[pyproto]
+impl PyGCProtocol for LocaleWrapper {
+    fn __traverse__(&self, _visit: PyVisit) -> Result<(), PyTraverseError> {
+        Ok(())
+    }
+
+    fn __clear__(&mut self) {
+        unsafe { localeDestroy(self.ptr) }
+    }
+}
+
+/// Handle to a parsing dimension identifier
+#[pyclass(name=Dimension)]
+#[derive(Debug, Clone)]
+pub struct DimensionWrapper {
+    ptr: *mut HaskellValue,
+}
+
+#[pyproto]
+impl PyGCProtocol for DimensionWrapper {
+    fn __traverse__(&self, _visit: PyVisit) -> Result<(), PyTraverseError> {
+        Ok(())
+    }
+
+    fn __clear__(&mut self) {
+        unsafe { dimensionDestroy(self.ptr) }
+    }
+}
 
 /// Load time zone information from local Olson files.
 ///
@@ -276,6 +293,95 @@ fn parse_ref_time(
     Ok(result)
 }
 
+/// Parse an ISO-639-1 language code
+///
+/// Parameters
+/// ----------
+/// lang: str
+///     ISO-639-1 code of the language to parse
+///
+/// Returns
+/// -------
+/// Language:
+///     Opaque handle to a Haskell reference of the language. If the language
+///     does not exist, or if it is not supported by Duckling,
+///     it defaults to English (EN).
+#[pyfunction]
+fn parse_lang(lang: &str) -> PyResult<LanguageWrapper> {
+    let lang_c_str = CString::new(lang).expect("CString::new failed");
+    let haskell_lang = unsafe { wparseLang(lang_c_str.as_ptr()) };
+    let result = LanguageWrapper { ptr: haskell_lang };
+    Ok(result)
+}
+
+/// Retrieve the default locale for a given language
+///
+/// Parameters
+/// ----------
+/// lang: Language
+///     Opaque handle to a Duckling language
+///
+/// Returns
+/// -------
+/// Locale:
+///     Opaque handle to the default language locale
+#[pyfunction]
+fn default_locale_lang(lang: LanguageWrapper) -> PyResult<LocaleWrapper> {
+    let haskell_locale = unsafe { wmakeDefaultLocale(lang.ptr) };
+    let result = LocaleWrapper {
+        ptr: haskell_locale,
+    };
+    Ok(result)
+}
+
+/// Parse an ISO3166 alpha2 country code into a locale
+///
+/// Parameters
+/// ----------
+/// locale: str
+///     Locale identifier to parse, it can be either a country code or a language
+///     with its country separated by underscore.
+/// default_locale: Locale
+///     Default locale to fallback on on case that the given code is not valid.
+///
+/// Returns
+/// -------
+/// Locale:
+///     Opaque handle to the default language locale
+#[pyfunction]
+fn parse_locale(locale: &str, default_locale: LocaleWrapper) -> PyResult<LocaleWrapper> {
+    let locale_c_str = CString::new(locale).expect("CString::new failed");
+    let haskell_locale = unsafe { wparseLocale(locale_c_str.as_ptr(), default_locale.ptr) };
+    let result = LocaleWrapper {
+        ptr: haskell_locale,
+    };
+    Ok(result)
+}
+
+#[pyfunction]
+fn parse_dimensions(dims: Vec<String>) -> PyResult<Vec<DimensionWrapper>> {
+    let n_elems = dims.len() as i32;
+
+    // This is required in order to preserve ownership of the pointers
+    let cstr_dims: Vec<CString> = dims
+        .iter()
+        .map(|s| CString::new(s.as_str()).expect("CString::new failed"))
+        .collect();
+
+    let c_dims: Vec<*const c_char> = cstr_dims.iter().map(|s| s.as_ptr()).collect();
+
+    let haskell_list = unsafe { wparseDimensions(n_elems, c_dims.as_ptr()) };
+    let haskell_length = unsafe { dimensionListLength(haskell_list) };
+    let haskell_ptrs = unsafe { dimensionListPtrs(haskell_list) };
+    let ptr_slice = unsafe { slice::from_raw_parts(haskell_ptrs, haskell_length as usize) };
+    let mut result_vec: Vec<DimensionWrapper> = Vec::new();
+    for ptr in ptr_slice {
+        let wrapper = DimensionWrapper { ptr: *ptr };
+        result_vec.push(wrapper);
+    }
+    Ok(result_vec)
+}
+
 /// This module is a python module implemented in Rust.
 #[pymodule]
 fn duckling(_py: Python, m: &PyModule) -> PyResult<()> {
@@ -283,9 +389,12 @@ fn duckling(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_wrapped(wrap_pyfunction!(load_time_zones))?;
     m.add_wrapped(wrap_pyfunction!(get_current_ref_time))?;
     m.add_wrapped(wrap_pyfunction!(parse_ref_time))?;
+    m.add_wrapped(wrap_pyfunction!(parse_lang))?;
+    m.add_wrapped(wrap_pyfunction!(default_locale_lang))?;
+    m.add_wrapped(wrap_pyfunction!(parse_locale))?;
+    m.add_wrapped(wrap_pyfunction!(parse_dimensions))?;
     m.add_wrapped(wrap_pyfunction!(init))?;
     m.add_wrapped(wrap_pyfunction!(stop))?;
-    m.add_class::<WrappedString>()?;
     m.add_class::<TimeZoneDatabaseWrapper>()?;
     m.add_class::<DucklingTimeWrapper>()?;
     Ok(())
