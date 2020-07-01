@@ -422,6 +422,23 @@ fn parse_dimensions(dims: Vec<String>) -> PyResult<Vec<DimensionWrapper>> {
     Ok(result_vec)
 }
 
+/// Parse a text into a structured format
+///
+/// Parameters
+/// ----------
+/// text: str
+///     Text to parse.
+/// context: Context
+///     Reference time and locale information
+/// dimensions: List[Dimension]
+///     List of dimensions to parse
+/// with_latent: bool
+///     When set, includes less certain parses, e.g. "7" as an hour of the day
+///
+/// Returns
+/// -------
+/// result: str
+///     JSON-valid string that contains the parsed information.
 #[pyfunction]
 fn parse_text(
     text: &str,
