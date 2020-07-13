@@ -70,10 +70,13 @@ extern "C" {
     pub fn tzdbDestroy(db: *mut HaskellValue);
     // Time reference wrapper functions
     pub fn duckTimeDestroy(time: *mut HaskellValue);
+    pub fn duckTimeRepr(time: *mut HaskellValue) -> *const c_char;
     // Language wrapper functions
     pub fn langDestroy(lang: *mut HaskellValue);
+    pub fn langRepr(lang: *mut HaskellValue) -> *const c_char;
     // Locale wrapper functions
     pub fn localeDestroy(locale: *mut HaskellValue);
+    pub fn localeRepr(locale: *mut HaskellValue) -> *const c_char;
     // Haskell runtime start/stop
     pub fn hs_init(argc: c_int, argv: *const *const c_char);
     pub fn hs_exit();
@@ -165,6 +168,21 @@ pub struct DucklingTimeWrapper {
     ptr: *mut HaskellValue,
 }
 
+#[pymethods]
+impl DucklingTimeWrapper {
+    #[getter]
+    fn iso8601(&self) -> PyResult<String> {
+        let c_value = unsafe { duckTimeRepr(self.ptr) };
+        let string_result = unsafe {
+            CStr::from_ptr(c_value)
+                .to_string_lossy()
+                .to_owned()
+                .to_string()
+        };
+        Ok(string_result)
+    }
+}
+
 #[pyproto]
 impl PyGCProtocol for DucklingTimeWrapper {
     fn __traverse__(&self, _visit: PyVisit) -> Result<(), PyTraverseError> {
@@ -183,6 +201,21 @@ pub struct LanguageWrapper {
     ptr: *mut HaskellValue,
 }
 
+#[pymethods]
+impl LanguageWrapper {
+    #[getter]
+    fn name(&self) -> PyResult<String> {
+        let c_value = unsafe { langRepr(self.ptr) };
+        let string_result = unsafe {
+            CStr::from_ptr(c_value)
+                .to_string_lossy()
+                .to_owned()
+                .to_string()
+        };
+        Ok(string_result)
+    }
+}
+
 #[pyproto]
 impl PyGCProtocol for LanguageWrapper {
     fn __traverse__(&self, _visit: PyVisit) -> Result<(), PyTraverseError> {
@@ -199,6 +232,21 @@ impl PyGCProtocol for LanguageWrapper {
 #[derive(Debug, Clone)]
 pub struct LocaleWrapper {
     ptr: *mut HaskellValue,
+}
+
+#[pymethods]
+impl LocaleWrapper {
+    #[getter]
+    fn name(&self) -> PyResult<String> {
+        let c_value = unsafe { localeRepr(self.ptr) };
+        let string_result = unsafe {
+            CStr::from_ptr(c_value)
+                .to_string_lossy()
+                .to_owned()
+                .to_string()
+        };
+        Ok(string_result)
+    }
 }
 
 #[pyproto]
@@ -262,7 +310,6 @@ impl Context {
 ///     Opaque handle to a map of time zone data information in Haskell.
 #[pyfunction]
 fn load_time_zones(path: &str) -> PyResult<TimeZoneDatabaseWrapper> {
-    println!("{}", path);
     // let c_str = WrappedString::new(path);
     let c_str = CString::new(path).expect("CString::new failed");
     let haskell_ptr = unsafe { wloadTimeZoneSeries(c_str.as_ptr()) };
@@ -286,10 +333,8 @@ fn load_time_zones(path: &str) -> PyResult<TimeZoneDatabaseWrapper> {
 #[pyfunction]
 fn get_current_ref_time(tz_db: TimeZoneDatabaseWrapper, tz: &str) -> PyResult<DucklingTimeWrapper> {
     // let c_str = WrappedString::new(tz);
-    println!("Timezone: {}", tz);
     let tz_c_str = CString::new(tz).expect("CString::new failed");
     let haskell_tz = unsafe { wcurrentReftime(tz_db.ptr, tz_c_str.as_ptr()) };
-    println!("Haskell call successful!");
     let result = DucklingTimeWrapper { ptr: haskell_tz };
     Ok(result)
 }
@@ -487,5 +532,7 @@ fn duckling(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<TimeZoneDatabaseWrapper>()?;
     m.add_class::<Context>()?;
     m.add_class::<DucklingTimeWrapper>()?;
+    m.add_class::<LocaleWrapper>()?;
+    m.add_class::<DimensionWrapper>()?;
     Ok(())
 }
