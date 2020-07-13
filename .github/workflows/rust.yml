@@ -52,3 +52,6 @@ jobs:
       - name: Build pyduckling
         shell: bash -l {0}
         run: bash -l .github/scripts/build_pyduckling.sh
+      - name: Run tests
+        shell: bash -l {0}
+        run: bash -l .github/scripts/run_tests.sh
