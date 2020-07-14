@@ -48,7 +48,7 @@ jobs:
         run: bash -l .github/scripts/build_ffi.sh
       - name: Install build/test dependencies
         shell: bash -l {0}
-        run: pip install maturin toml pytest pytest-cov coverage
+        run: pip install maturin toml pytest pytest-cov coverage pendulum
       - name: Build pyduckling
         shell: bash -l {0}
         run: bash -l .github/scripts/build_pyduckling.sh
