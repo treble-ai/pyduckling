@@ -128,8 +128,7 @@ def test_parse_dimensions():
 
 
 def test_parse(time_zones):
-    bog_now: pendulum.DateTime = pendulum.now(
-        'America/Bogota').replace(microsecond=0)
+    bog_now = pendulum.now('America/Bogota').replace(microsecond=0)
     ref_time = parse_ref_time(
         time_zones, 'America/Bogota', bog_now.int_timestamp)
     lang_es = parse_lang('ES')
