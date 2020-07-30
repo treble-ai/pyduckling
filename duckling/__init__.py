@@ -38,7 +38,7 @@ init()
 
 
 def parse(text: str, context: Context, dimensions: List[Dimension],
-          with_latent: bool = False):
+          with_latent: bool = False) -> dict:
     """
     Parse a text into a structured format.
 
