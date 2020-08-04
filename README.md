@@ -1,8 +1,8 @@
 # PyDuckling
 [![Project License - MIT](https://img.shields.io/pypi/l/pyduckling-native.svg)](https://raw.githubusercontent.com/treble-ai/pyduckling-native/master/LICENSE)
 [![pypi version](https://img.shields.io/pypi/v/pyduckling-native.svg)](https://pypi.org/project/pyduckling-native/)
-[![conda version](https://img.shields.io/conda/vn/conda-forge/pyduckling-native.svg)](https://www.anaconda.com/download/)
-[![download count](https://img.shields.io/conda/dn/conda-forge/pyduckling-native.svg)](https://www.anaconda.com/download/)
+[![conda version](https://img.shields.io/conda/vn/conda-forge/pyduckling.svg)](https://www.anaconda.com/download/)
+[![download count](https://img.shields.io/conda/dn/conda-forge/pyduckling.svg)](https://www.anaconda.com/download/)
 [![Downloads](https://pepy.tech/badge/pyduckling-native)](https://pepy.tech/project/pyduckling-native)
 [![PyPI status](https://img.shields.io/pypi/status/pyduckling-native.svg)](https://github.com/treble-ai/pyduckling-native)
 ![Linux tests](https://github.com/treble-ai/pyduckling/workflows/Rust/badge.svg)
