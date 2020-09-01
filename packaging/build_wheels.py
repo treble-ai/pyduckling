@@ -12,6 +12,7 @@
 import os
 import io
 import sys
+import glob
 import shutil
 import zipfile
 import hashlib
@@ -137,6 +138,8 @@ def patch_linux():
         version, PYTHON_VERSION.major, PYTHON_VERSION.minor, PLATFORM_ARCH)
     dist = osp.join(PACKAGE_ROOT, 'dist', wheel_name)
     output_dir = osp.join(PACKAGE_ROOT, '.wheel-process')
+
+    print(glob.glob(osp.join(output_dir, '*.whl')))
 
     if osp.exists(output_dir):
         shutil.rmtree(output_dir)
