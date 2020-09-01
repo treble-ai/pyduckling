@@ -139,7 +139,7 @@ def patch_linux():
     dist = osp.join(PACKAGE_ROOT, 'dist', wheel_name)
     output_dir = osp.join(PACKAGE_ROOT, '.wheel-process')
 
-    print(glob.glob(osp.join(output_dir, '*.whl')))
+    print(glob.glob(osp.join(PACKAGE_ROOT, 'dist', '*.whl')))
 
     if osp.exists(output_dir):
         shutil.rmtree(output_dir)
