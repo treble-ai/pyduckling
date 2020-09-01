@@ -20,7 +20,7 @@ jobs:
       env:
         PYTHON_VERSION: ${{ matrix.PYTHON_VERSION }}
         RUNNER_OS: "ubuntu"
-      options: -u $(id -u):$(id -g)
+      # options: -u $(id -u):$(id -g)
     strategy:
       fail-fast: false
       matrix:
