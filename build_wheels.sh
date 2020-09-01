@@ -14,7 +14,9 @@ curl -sSL https://get.haskellstack.org/ | sh
 export PATH="$HOME/.local/bin:$PATH"
 
 # Set stack resolver to 8.6.5
-# sudo chmod 777 $HOME
+mkdir -p $HOME/.stack/global-project
+cp .github/stack/stack.yaml $HOME/.stack/global-project
+
 pushd $HOME
 stack config set resolver ghc-8.6.5
 popd
