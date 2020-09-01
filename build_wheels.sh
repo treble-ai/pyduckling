@@ -47,7 +47,7 @@ cp libducklingffi.so ../ext_lib
 popd
 
 # Produce wheels and patch binaries for redistribution
-PYBIN=/opt/python/cp$(echo $PYTHON_VERSION | sed -e 's/\.//g')*/bin
+PYBIN=$(echo $PYBIN)
 # for PYBIN in /opt/python/cp{35,36,37,38,39}*/bin; do
 "${PYBIN}/pip" install -U setuptools wheel setuptools-rust
 "${PYBIN}/python" packaging/build_wheels.py
