@@ -51,6 +51,7 @@ PYBIN=$(echo $PYBIN)
 GHC_LIB=$(stack exec -- ghc --print-libdir)
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GHC_LIB/rts:$(pwd)/ext_lib
 # for PYBIN in /opt/python/cp{35,36,37,38,39}*/bin; do
+ls dist
 "${PYBIN}/pip" install -U setuptools wheel setuptools-rust auditwheel
 "${PYBIN}/python" packaging/build_wheels.py
 # done
