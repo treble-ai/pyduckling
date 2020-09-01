@@ -14,6 +14,7 @@ yum install -y zlib-devel sudo
 
 # Set stack resolver to 8.6.5
 # sudo chmod 777 $HOME
+TAR_OPTIONS=--no-same-owner stack setup
 stack config set resolver ghc-8.6.5
 
 # Compile patchelf and apply 64MB patch
