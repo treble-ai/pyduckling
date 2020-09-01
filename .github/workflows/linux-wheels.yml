@@ -29,6 +29,12 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: true
+      - name: Install latest Rust nightly
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+          components: rustfmt, clippy
       - name: Install Haskell Stack
         uses: mstksg/setup-stack@v1
       - name: Build wheel

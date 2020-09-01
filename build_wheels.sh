@@ -5,8 +5,8 @@ set -ex
 yum install -y zlib-devel sudo
 
 # Install Rustup
-curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain nightly -y
-export PATH="$HOME/.cargo/bin:$PATH"
+# curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain nightly -y
+# export PATH="$HOME/.cargo/bin:$PATH"
 
 # Install Stack
 # curl -sSL https://get.haskellstack.org/ | sh
