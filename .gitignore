@@ -160,3 +160,7 @@ static
 
 # VSCode settings
 .vscode/
+
+# Auditwheel output
+wheelhouse/
+.wheel-process/

@@ -30,6 +30,7 @@ fn main() {
         );
         println!("cargo:rustc-link-lib=dylib=ducklingffi");
         println!("cargo:rustc-link-lib=dylib=HSrts-ghc{}", ghc_version);
+        println!("cargo:rustc-env=GHC_VERSION={}", ghc_version);
     } else {
         panic!("Stack was not found in the PATH")
     }

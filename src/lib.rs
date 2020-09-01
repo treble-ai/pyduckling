@@ -24,6 +24,7 @@ use std::sync::Once;
 
 // Package version
 const VERSION: &'static str = env!("CARGO_PKG_VERSION");
+const GHC_VERSION: &'static str = env!("GHC_VERSION");
 
 // Haskell runtime status
 static START_ONCE: Once = Once::new();
@@ -519,6 +520,7 @@ fn parse_text(
 #[pymodule]
 fn duckling(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add("__version__", VERSION)?;
+    m.add("GHC_VERSION", GHC_VERSION)?;
     m.add_wrapped(wrap_pyfunction!(load_time_zones))?;
     m.add_wrapped(wrap_pyfunction!(get_current_ref_time))?;
     m.add_wrapped(wrap_pyfunction!(parse_ref_time))?;

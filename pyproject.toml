@@ -1,0 +1,10 @@
+[build-system]
+requires = ["maturin"]
+build-backend = "maturin"
+
+[tool.maturin]
+manylinux = "off"
+sdist-include = ["duckling-ffi/*"]
+
+# [build-system]
+# requires = ["setuptools", "wheel", "setuptools-rust"]
