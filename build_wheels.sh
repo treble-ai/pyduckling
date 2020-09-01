@@ -16,6 +16,7 @@ export PATH="$HOME/.local/bin:$PATH"
 # Set stack resolver to 8.6.5
 mkdir -p $HOME/.stack/global-project
 cp .github/stack/stack.yaml $HOME/.stack/global-project
+cp packaging/0001-Allow-binaries-larger-than-32MB.patch $HOME
 
 pushd $HOME
 stack config set resolver ghc-8.6.5
@@ -26,7 +27,7 @@ popd
 pushd /root
 git clone https://github.com/NixOS/patchelf
 cd patchelf
-git apply /io/packaging/0001-Allow-binaries-larger-than-32MB.patch
+git apply $HOME/0001-Allow-binaries-larger-than-32MB.patch
 
 bash bootstrap.sh
 ./configure
