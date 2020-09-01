@@ -3,14 +3,15 @@ set -ex
 
 # Install ZLib and sudo
 yum install -y zlib-devel sudo
+export HOME="/root"
 
 # Install Rustup
-# curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain nightly -y
-# export PATH="$HOME/.cargo/bin:$PATH"
+curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain nightly -y
+export PATH="$HOME/.cargo/bin:$PATH"
 
 # Install Stack
-# curl -sSL https://get.haskellstack.org/ | sh
-# export PATH="$HOME/.local/bin:$PATH"
+curl -sSL https://get.haskellstack.org/ | sh
+export PATH="$HOME/.local/bin:$PATH"
 
 # Set stack resolver to 8.6.5
 # sudo chmod 777 $HOME
