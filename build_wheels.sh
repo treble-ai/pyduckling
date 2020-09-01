@@ -1,5 +1,10 @@
 #!/bin/bash
 set -ex
+shopt -s nullglob
+
+PYBIN=/opt/python/cp$(echo $PYTHON_VERSION | sed -e 's/\.//g')*/bin
+echo $PYBIN
+# PYBIN=$(echo $PYBIN)
 
 # Install ZLib and sudo
 yum install -y zlib-devel sudo
