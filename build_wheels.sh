@@ -21,7 +21,6 @@ cp packaging/0001-Allow-binaries-larger-than-32MB.patch $HOME
 pushd $HOME
 stack config set resolver ghc-8.6.5
 popd
-# TAR_OPTIONS=--no-same-owner stack setup --allow-different-user
 
 # Compile patchelf and apply 64MB patch
 pushd /root
@@ -36,7 +35,6 @@ make install
 popd
 
 # Compile libducklingffi
-cd /io
 pushd duckling-ffi
 
 stack build
