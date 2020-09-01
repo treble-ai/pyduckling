@@ -27,9 +27,6 @@ from auditwheel.lddtree import lddtree
 
 HERE = osp.dirname(osp.abspath(__file__))
 PACKAGE_ROOT = osp.dirname(HERE)
-GLIBC_BLACKLIST = {
-    'libpthread', 'libgcc_s', 'libc', 'ld-linux-x86-64', 'libdl',
-    'libm'}
 PLATFORM_ARCH = platform.machine()
 PYTHON_VERSION = sys.version_info
 
