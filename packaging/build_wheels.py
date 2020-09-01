@@ -24,6 +24,7 @@ from base64 import urlsafe_b64encode
 # Third party imports
 import toml
 from auditwheel.lddtree import lddtree
+from wheel.bdist_wheel import get_abi_tag
 
 
 HERE = osp.dirname(osp.abspath(__file__))
@@ -134,8 +135,9 @@ def patch_linux():
 
     package_info = get_metadata()
     version = package_info['version'].replace('-', '.')
-    wheel_name = 'pyduckling-{0}-cp{1}{2}-cp{1}{2}m-linux_{3}.whl'.format(
-        version, PYTHON_VERSION.major, PYTHON_VERSION.minor, PLATFORM_ARCH)
+    wheel_name = 'pyduckling-{0}-cp{1}{2}-{3}-linux_{4}.whl'.format(
+        version, PYTHON_VERSION.major, PYTHON_VERSION.minor,
+        get_abi_tag(), PLATFORM_ARCH)
     dist = osp.join(PACKAGE_ROOT, 'dist', wheel_name)
     output_dir = osp.join(PACKAGE_ROOT, '.wheel-process')
 
@@ -150,8 +152,8 @@ def patch_linux():
     unzip_file(dist, output_dir)
 
     print('Finding ELF dependencies...')
-    main_binary = 'duckling.cpython-{0}{1}m-{2}-linux-gnu.so'.format(
-        PYTHON_VERSION.major, PYTHON_VERSION.minor, PLATFORM_ARCH)
+    main_binary = 'duckling.cpython-{0}-{1}-linux-gnu.so'.format(
+        get_abi_tag(), PLATFORM_ARCH)
     output_library = osp.join(output_dir, 'duckling')
     binary_path = osp.join(output_library, main_binary)
 
