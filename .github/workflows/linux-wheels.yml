@@ -17,9 +17,9 @@ jobs:
       image: quay.io/pypa/manylinux2014_x86_64:latest
       volumes:
         - my_docker_volume:/volume_mount
-    env:
-      PYTHON_VERSION: ${{ matrix.PYTHON_VERSION }}
-      RUNNER_OS: "ubuntu"
+      env:
+        PYTHON_VERSION: ${{ matrix.PYTHON_VERSION }}
+        RUNNER_OS: "ubuntu"
     strategy:
       fail-fast: false
       matrix:
@@ -29,3 +29,11 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: true
+      - name: Build wheel
+        shell: bash -l {0}
+        run: bash -l build_wheels.sh
+      - name: Upload wheel artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: wheels
+          path: dist/*.whl
