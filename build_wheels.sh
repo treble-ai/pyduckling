@@ -9,11 +9,11 @@ curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain nightly -y
 export PATH="$HOME/.cargo/bin:$PATH"
 
 # Install Stack
-curl -sSL https://get.haskellstack.org/ | sh
-export PATH="$HOME/.local/bin:$PATH"
+# curl -sSL https://get.haskellstack.org/ | sh
+# export PATH="$HOME/.local/bin:$PATH"
 
 # Set stack resolver to 8.6.5
-sudo chmod 777 $HOME
+# sudo chmod 777 $HOME
 stack config set resolver ghc-8.6.5
 
 # Compile patchelf and apply 64MB patch
