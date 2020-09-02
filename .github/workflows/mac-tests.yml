@@ -1,0 +1,54 @@
+name: Mac Tests
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  macos:
+    name: MacOS Py${{ matrix.PYTHON_VERSION }}
+    runs-on: macos-latest
+    env:
+      PYTHON_VERSION: ${{ matrix.PYTHON_VERSION }}
+      RUNNER_OS: "macos"
+    strategy:
+      fail-fast: false
+      matrix:
+        PYTHON_VERSION: ["3.5", "3.6", "3.7", "3.8"]
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Install latest Rust nightly
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+          components: rustfmt, clippy
+      # - name: Install Haskell Stack
+      #   uses: mstksg/setup-stack@v1
+      - name: Install Conda
+        uses: goanpeca/setup-miniconda@v1
+        with:
+          activate-environment: test
+          auto-update-conda: true
+          auto-activate-base: false
+          python-version: ${{ matrix.PYTHON_VERSION }}
+      - name: Compile duckling-ffi
+        shell: bash -l {0}
+        run: bash -l .github/scripts/build_ffi.sh
+      - name: Install build/test dependencies
+        shell: bash -l {0}
+        run: pip install maturin toml pytest pytest-cov coverage pendulum
+      - name: Build pyduckling
+        shell: bash -l {0}
+        run: bash -l .github/scripts/build_pyduckling.sh
+      - name: Run tests
+        shell: bash -l {0}
+        run: bash -l .github/scripts/run_tests.sh
