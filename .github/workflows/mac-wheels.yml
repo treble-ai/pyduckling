@@ -1,4 +1,4 @@
-name: Linux Tests
+name: Mac Wheels
 
 on:
   push:
@@ -10,12 +10,12 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  linux:
-    name: Linux Py${{ matrix.PYTHON_VERSION }}
-    runs-on: ubuntu-latest
+  macos:
+    name: MacOS Py${{ matrix.PYTHON_VERSION }}
+    runs-on: macos-latest
     env:
       PYTHON_VERSION: ${{ matrix.PYTHON_VERSION }}
-      RUNNER_OS: "ubuntu"
+      RUNNER_OS: "macos"
     strategy:
       fail-fast: false
       matrix:
@@ -31,9 +31,8 @@ jobs:
           toolchain: nightly
           override: true
           components: rustfmt, clippy
-      - name: Print Rust version
-        shell: bash -l {0}
-        run: rustc --version
+      # - name: Install Haskell Stack
+      #   uses: mstksg/setup-stack@v1
       - name: Install Conda
         uses: goanpeca/setup-miniconda@v1
         with:
@@ -41,17 +40,19 @@ jobs:
           auto-update-conda: true
           auto-activate-base: false
           python-version: ${{ matrix.PYTHON_VERSION }}
-      - name: Install Haskell Stack
-        uses: mstksg/setup-stack@v1
       - name: Compile duckling-ffi
         shell: bash -l {0}
         run: bash -l .github/scripts/build_ffi.sh
-      - name: Install build/test dependencies
+      - name: Install build dependencies
         shell: bash -l {0}
-        run: pip install maturin toml pytest pytest-cov coverage pendulum
-      - name: Build pyduckling
+        run: pip install setuptools-rust wheel auditwheel delocate toml
+      - name: Build wheel
         shell: bash -l {0}
-        run: bash -l .github/scripts/build_pyduckling.sh
-      - name: Run tests
-        shell: bash -l {0}
-        run: bash -l .github/scripts/run_tests.sh
+        run: bash -l .github/scripts/build_mac_wheels.sh
+      - name: Upload wheel artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: mac_dist
+          path: |
+            dist/*.whl
+            dist/*.tar.gz

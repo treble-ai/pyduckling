@@ -17,8 +17,19 @@ crate-type = ["cdylib"]
 
 [dependencies]
 libc = "0.2"
-# curryrs = { git = "https://github.com/mgattozzi/curryrs/" }
 
 [dependencies.pyo3]
 version = "0.10.1"
 features = ["extension-module"]
+
+[package.metadata.maturin]
+requires-dist = ["pendulum"]
+classifier = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.5",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8"
+]

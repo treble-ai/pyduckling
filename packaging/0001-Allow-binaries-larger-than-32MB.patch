@@ -1,0 +1,25 @@
+From 5b84342f57009f8cc1be801825a0a5925f0fcebc Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Edgar=20Andr=C3=A9s=20Margffoy=20Tuay?= <andfoy@gmail.com>
+Date: Mon, 31 Aug 2020 11:37:56 -0500
+Subject: [PATCH] Allow binaries larger than 32MB
+
+---
+ src/patchelf.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/patchelf.cc b/src/patchelf.cc
+index d0063f9..19d1483 100644
+--- a/src/patchelf.cc
++++ b/src/patchelf.cc
+@@ -328,7 +328,7 @@ static FileContents readFile(std::string fileName,
+     size_t size = std::min(cutOff, (size_t) st.st_size);
+ 
+     FileContents contents = std::make_shared<std::vector<unsigned char>>();
+-    contents->reserve(size + 32 * 1024 * 1024);
++    contents->reserve(size + 64 * 1024 * 1024);
+     contents->resize(size, 0);
+ 
+     int fd = open(fileName.c_str(), O_RDONLY);
+-- 
+2.20.1
+

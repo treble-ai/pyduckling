@@ -1,0 +1,43 @@
+name: Linux Wheels
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  linux:
+    name: Linux (CentOS 7) Py${{ matrix.PYTHON_VERSION }}
+    runs-on: ubuntu-latest
+    container:
+      image: quay.io/pypa/manylinux2014_x86_64:latest
+      volumes:
+        - my_docker_volume:/volume_mount
+      env:
+        PYTHON_VERSION: ${{ matrix.PYTHON_VERSION }}
+        RUNNER_OS: "ubuntu"
+        HOME: "/root"
+      # options: -u $(id -u):$(id -g)
+    strategy:
+      fail-fast: false
+      matrix:
+        PYTHON_VERSION: ["3.5", "3.6", "3.7", "3.8", "3.9"]
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Build wheel
+        shell: bash -l {0}
+        run: bash -l .github/scripts/build_linux_wheels.sh
+      - name: Upload wheel artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: linux_dist
+          path: |
+            dist/*.whl
+            dist/*.tar.gz

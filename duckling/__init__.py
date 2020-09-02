@@ -18,8 +18,10 @@ from .duckling import (init, stop, load_time_zones,
                        get_current_ref_time, parse_ref_time,
                        parse_lang, default_locale_lang, parse_locale,
                        parse_dimensions, parse_text, Context, Dimension,
-                       Locale)
+                       Locale, __version__, GHC_VERSION)
 
+__version__
+GHC_VERSION
 init
 stop
 load_time_zones

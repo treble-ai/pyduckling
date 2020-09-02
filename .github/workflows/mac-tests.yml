@@ -1,4 +1,4 @@
-name: Linux Tests
+name: Mac Tests
 
 on:
   push:
@@ -10,12 +10,12 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  linux:
-    name: Linux Py${{ matrix.PYTHON_VERSION }}
-    runs-on: ubuntu-latest
+  macos:
+    name: MacOS Py${{ matrix.PYTHON_VERSION }}
+    runs-on: macos-latest
     env:
       PYTHON_VERSION: ${{ matrix.PYTHON_VERSION }}
-      RUNNER_OS: "ubuntu"
+      RUNNER_OS: "macos"
     strategy:
       fail-fast: false
       matrix:
@@ -31,9 +31,8 @@ jobs:
           toolchain: nightly
           override: true
           components: rustfmt, clippy
-      - name: Print Rust version
-        shell: bash -l {0}
-        run: rustc --version
+      # - name: Install Haskell Stack
+      #   uses: mstksg/setup-stack@v1
       - name: Install Conda
         uses: goanpeca/setup-miniconda@v1
         with:
@@ -41,8 +40,6 @@ jobs:
           auto-update-conda: true
           auto-activate-base: false
           python-version: ${{ matrix.PYTHON_VERSION }}
-      - name: Install Haskell Stack
-        uses: mstksg/setup-stack@v1
       - name: Compile duckling-ffi
         shell: bash -l {0}
         run: bash -l .github/scripts/build_ffi.sh
