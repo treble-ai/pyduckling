@@ -31,8 +31,8 @@ jobs:
           toolchain: nightly
           override: true
           components: rustfmt, clippy
-      - name: Install Haskell Stack
-        uses: mstksg/setup-stack@v1
+      # - name: Install Haskell Stack
+      #   uses: mstksg/setup-stack@v1
       - name: Install Conda
         uses: goanpeca/setup-miniconda@v1
         with:

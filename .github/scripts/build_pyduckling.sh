@@ -1,4 +1,5 @@
 
+export PATH="$HOME/.local/bin:$PATH"
 mkdir -p $HOME/.stack/global-project
 cp .github/stack/stack.yaml $HOME/.stack/global-project
 
