@@ -8,6 +8,7 @@ stack config set resolver ghc-8.6.5
 popd
 
 which python
+conda activate test
 python setup.py bdist_wheel
 
 if [[ $PYTHON_VERSION == "3.9" ]]; then
