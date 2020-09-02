@@ -153,7 +153,7 @@ def patch_linux():
 
     print('Finding ELF dependencies...')
     main_binary = 'duckling.cpython-{0}-{1}-linux-gnu.so'.format(
-        get_abi_tag(), PLATFORM_ARCH)
+        get_abi_tag().replace('cp', ''), PLATFORM_ARCH)
     output_library = osp.join(output_dir, 'duckling')
     binary_path = osp.join(output_library, main_binary)
 
