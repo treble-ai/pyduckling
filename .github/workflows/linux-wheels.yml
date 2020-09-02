@@ -33,7 +33,7 @@ jobs:
           submodules: true
       - name: Install sudo
         shell: bash -l {0}
-        run: yum install sudo
+        run: yum -y install sudo
       - uses: actions/checkout@v2
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v2
