@@ -11,8 +11,9 @@ popd
 # which python
 # Adjust PATH in macOS because conda is not at front of it
 export PATH=/usr/local/miniconda/envs/test/bin:/usr/local/miniconda/condabin:$PATH
-python setup.py bdist_wheel
+# python setup.py bdist_wheel
+python packaging/build_wheels.py
 
-if [[ $PYTHON_VERSION == "3.9" ]]; then
+if [[ $PYTHON_VERSION == "3.8" ]]; then
     python setup.py sdist
 fi

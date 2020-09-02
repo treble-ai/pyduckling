@@ -115,6 +115,52 @@ def patch_new_path(library_path, new_dir):
     return osp.join(new_dir, new_name)
 
 
+def patch_mac():
+    # Find delocate location
+    delocate_wheel = find_program('delocate-wheel')
+    delocate_list = find_program('delocate-listdeps')
+    if delocate_wheel is None:
+        raise FileNotFoundError('Delocate was not found in the system, '
+                                'please install it via pip')
+    # Produce wheel
+    print('Producing wheel...')
+    subprocess.check_output(
+        [
+            sys.executable,
+            'setup.py',
+            'bdist_wheel'
+        ],
+        cwd=PACKAGE_ROOT
+    )
+
+    package_info = get_metadata()
+    version = package_info['version'].replace('-', '.')
+    wheel_name = 'pyduckling-{0}-cp{1}{2}-{3}-macosx_10_15_{4}.whl'.format(
+        version, PYTHON_VERSION.major, PYTHON_VERSION.minor,
+        get_abi_tag(), PLATFORM_ARCH)
+    dist = osp.join(PACKAGE_ROOT, 'dist', wheel_name)
+
+    print('Calling delocate...')
+    subprocess.check_output(
+        [
+            delocate_wheel,
+            '-v',
+            dist
+        ],
+        cwd=PACKAGE_ROOT
+    )
+
+    print('Resulting libraries')
+    subprocess.check_output(
+        [
+            delocate_list,
+            '-all',
+            dist
+        ],
+        cwd=PACKAGE_ROOT
+    )
+
+
 def patch_linux():
     # Get patchelf location
     patchelf = find_program('patchelf')
@@ -287,3 +333,5 @@ def patch_linux():
 if __name__ == '__main__':
     if sys.platform == 'linux':
         patch_linux()
+    elif sys.platform == 'darwin':
+        patch_mac()
