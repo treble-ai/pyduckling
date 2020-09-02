@@ -48,7 +48,7 @@ jobs:
         run: pip install setuptools-rust wheel auditwheel delocate toml
       - name: Build wheel
         shell: bash -l {0}
-        run: bash -l build_mac_wheels.sh
+        run: bash -l .github/scripts/build_mac_wheels.sh
       - name: Upload wheel artifact
         uses: actions/upload-artifact@v2
         with:
