@@ -154,7 +154,7 @@ def patch_mac():
     subprocess.check_output(
         [
             delocate_list,
-            '-all',
+            '--all',
             dist
         ],
         cwd=PACKAGE_ROOT

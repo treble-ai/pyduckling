@@ -11,6 +11,8 @@ popd
 # which python
 # Adjust PATH in macOS because conda is not at front of it
 export PATH=/usr/local/miniconda/envs/test/bin:/usr/local/miniconda/condabin:$PATH
+GHC_LIB=$(stack exec -- ghc --print-libdir)
+export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$GHC_LIB/rts:$(pwd)/ext_lib
 # python setup.py bdist_wheel
 python packaging/build_wheels.py
 
