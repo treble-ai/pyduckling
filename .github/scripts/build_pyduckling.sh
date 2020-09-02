@@ -1,10 +1,9 @@
 
-export PATH="$HOME/.local/bin:$PATH"
+# export PATH="$HOME/.local/bin:$PATH"
 mkdir -p $HOME/.stack/global-project
 cp .github/stack/stack.yaml $HOME/.stack/global-project
 
-pushd .
-cd $HOME
+pushd $HOME
 stack config set resolver ghc-8.6.5
 popd
 
