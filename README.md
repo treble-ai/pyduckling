@@ -1,8 +1,8 @@
 # PyDuckling
 [![Project License - MIT](https://img.shields.io/pypi/l/pyduckling-native.svg)](https://raw.githubusercontent.com/treble-ai/pyduckling-native/master/LICENSE)
 [![pypi version](https://img.shields.io/pypi/v/pyduckling-native.svg)](https://pypi.org/project/pyduckling-native/)
-[![conda version](https://img.shields.io/conda/vn/conda-forge/pyduckling.svg)](https://www.anaconda.com/download/)
-[![download count](https://img.shields.io/conda/dn/conda-forge/pyduckling.svg)](https://www.anaconda.com/download/)
+[![conda version](https://img.shields.io/conda/vn/treble-ai/pyduckling.svg)](https://www.anaconda.com/download/)
+[![download count](https://img.shields.io/conda/dn/treble-ai/pyduckling.svg)](https://www.anaconda.com/download/)
 [![Downloads](https://pepy.tech/badge/pyduckling-native)](https://pepy.tech/project/pyduckling-native)
 [![PyPI status](https://img.shields.io/pypi/status/pyduckling-native.svg)](https://github.com/treble-ai/pyduckling-native)
 ![Linux tests](https://github.com/treble-ai/pyduckling/workflows/Rust/badge.svg)
@@ -12,15 +12,17 @@
 ## Overview
 This package provides native bindings for Facebook's [Duckling](https://github.com/facebook/duckling) in Python. This package supports all dimensions and languages available on the original library, and it does not require to spawn a Haskell server and does not use HTTP to call the Duckling API.
 
+**Note:** This package is completely Haskell-less
+
 ## Installing
 To install pyduckling, you can use both conda and pip package managers:
 
 ```bash
-# Using conda (Recommended)
-conda install pyduckling
-
-# Using pip (Discouraged)
+# Using pip
 pip install pyduckling-native
+
+# Using conda
+conda install pyduckling -c treble-ai
 ```
 
 **Notes:** Right now, we only provide package distributions for Linux (x86_64). We will provide Windows and Mac distributions on the next release
@@ -34,7 +36,6 @@ To compile pyduckling, you will require the latest nightly release of [Rust](htt
 
 Additionally, this package depends on [Duckling-FFI](https://github.com/treble-ai/duckling-ffi), used to compile the native interface to Duckling on Haskell. In order to compile Duckling-FFI, you will require the [Stack](https://haskell-lang.org/get-started) Haskell manager.
 
-Finally, as Duckling-FFI is compiled dynamically, rather than statically, this package requires a working Haskell runtime available.
 
 ## Installing locally
 Besides Rust and Stack, you will require the latest version of maturin installed to compile this project locally:

@@ -1,0 +1,58 @@
+name: Mac Wheels
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  macos:
+    name: MacOS Py${{ matrix.PYTHON_VERSION }}
+    runs-on: macos-latest
+    env:
+      PYTHON_VERSION: ${{ matrix.PYTHON_VERSION }}
+      RUNNER_OS: "macos"
+    strategy:
+      fail-fast: false
+      matrix:
+        PYTHON_VERSION: ["3.5", "3.6", "3.7", "3.8", "3.9"]
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Install latest Rust nightly
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+          components: rustfmt, clippy
+      - name: Install Haskell Stack
+        uses: mstksg/setup-stack@v1
+      - name: Install Conda
+        uses: goanpeca/setup-miniconda@v1
+        with:
+          activate-environment: test
+          auto-update-conda: true
+          auto-activate-base: false
+          python-version: ${{ matrix.PYTHON_VERSION }}
+      - name: Compile duckling-ffi
+        shell: bash -l {0}
+        run: bash -l .github/scripts/build_ffi.sh
+      - name: Install build dependencies
+        shell: bash -l {0}
+        run: pip install setuptools-rust wheel auditwheel delocate toml
+      - name: Build wheel
+        shell: bash -l {0}
+        run: bash -l build_mac_wheels.sh
+      - name: Upload wheel artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: mac_dist
+          path: |
+            dist/*.whl
+            dist/*.tar.gz
