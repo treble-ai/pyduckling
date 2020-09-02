@@ -54,3 +54,7 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GHC_LIB/rts:$(pwd)/ext_lib
 "${PYBIN}/pip" install -U setuptools wheel setuptools-rust auditwheel
 "${PYBIN}/python" packaging/build_wheels.py
 # done
+
+if [[ $PYTHON_VERSION == "3.9" ]]; then
+    "${PYBIN}/python" setup.py sdist
+fi

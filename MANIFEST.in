@@ -1,2 +1,12 @@
 include Cargo.toml
 recursive-include src *
+recursive-include ext_lib *
+recursive-include duckling-ffi *
+recursive-include packaging *
+global-include *.rs
+global-exclude *.so
+global-exclude *.dll
+global-exclude *.dylib
+global-exclude *.pyc
+global-exclude *.pyd
+prune duckling-ffi/.stack-work

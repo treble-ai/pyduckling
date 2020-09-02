@@ -6,7 +6,7 @@
 # (see LICENSE.txt for details)
 # -----------------------------------------------------------------------------
 
-"""Setup script for dbsession."""
+"""Setup script for PyDuckling."""
 
 # yapf: disable
 

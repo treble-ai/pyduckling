@@ -169,7 +169,8 @@ def patch_linux():
         library_info = tree_libs[library]
         print(library)
         print(library_info)
-        if library_info['path'].startswith('/lib'):
+        if (library_info['path'].startswith('/lib') and
+                not library.startswith('libpcre')):
             # Omit glibc/gcc/system libraries
             continue
 
