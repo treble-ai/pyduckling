@@ -5,7 +5,8 @@
 [![download count](https://img.shields.io/conda/dn/treble-ai/pyduckling.svg)](https://www.anaconda.com/download/)
 [![Downloads](https://pepy.tech/badge/pyduckling-native)](https://pepy.tech/project/pyduckling-native)
 [![PyPI status](https://img.shields.io/pypi/status/pyduckling-native.svg)](https://github.com/treble-ai/pyduckling-native)
-![Linux tests](https://github.com/treble-ai/pyduckling/workflows/Rust/badge.svg)
+![Linux Tests](https://github.com/treble-ai/pyduckling/workflows/Linux%20Tests/badge.svg?branch=master)
+![Mac Tests](https://github.com/treble-ai/pyduckling/workflows/Mac%20Tests/badge.svg?branch=master)
 
 *Copyright © 2020– Treble.ai*
 

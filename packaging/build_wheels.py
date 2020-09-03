@@ -135,7 +135,7 @@ def patch_mac():
 
     package_info = get_metadata()
     version = package_info['version'].replace('-', '.')
-    wheel_name = 'pyduckling-{0}-cp{1}{2}-{3}-macosx_10_15_{4}.whl'.format(
+    wheel_name = 'pyduckling_native-{0}-cp{1}{2}-{3}-macosx_10_15_{4}.whl'.format(
         version, PYTHON_VERSION.major, PYTHON_VERSION.minor,
         get_abi_tag(), PLATFORM_ARCH)
     dist = osp.join(PACKAGE_ROOT, 'dist', wheel_name)
@@ -181,7 +181,7 @@ def patch_linux():
 
     package_info = get_metadata()
     version = package_info['version'].replace('-', '.')
-    wheel_name = 'pyduckling-{0}-cp{1}{2}-{3}-linux_{4}.whl'.format(
+    wheel_name = 'pyduckling_native-{0}-cp{1}{2}-{3}-linux_{4}.whl'.format(
         version, PYTHON_VERSION.major, PYTHON_VERSION.minor,
         get_abi_tag(), PLATFORM_ARCH)
     dist = osp.join(PACKAGE_ROOT, 'dist', wheel_name)
@@ -309,7 +309,7 @@ def patch_linux():
 
     print('Update RECORD file in wheel')
     dist_info = osp.join(
-        output_dir, 'pyduckling-{0}.dist-info'.format(version))
+        output_dir, 'pyduckling_native-{0}.dist-info'.format(version))
     record_file = osp.join(dist_info, 'RECORD')
 
     with open(record_file, 'w') as f:
