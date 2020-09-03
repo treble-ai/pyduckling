@@ -181,7 +181,7 @@ def patch_linux():
 
     package_info = get_metadata()
     version = package_info['version'].replace('-', '.')
-    wheel_name = 'pyduckling-{0}-cp{1}{2}-{3}-linux_{4}.whl'.format(
+    wheel_name = 'pyduckling-native-{0}-cp{1}{2}-{3}-linux_{4}.whl'.format(
         version, PYTHON_VERSION.major, PYTHON_VERSION.minor,
         get_abi_tag(), PLATFORM_ARCH)
     dist = osp.join(PACKAGE_ROOT, 'dist', wheel_name)
@@ -198,7 +198,7 @@ def patch_linux():
     unzip_file(dist, output_dir)
 
     print('Finding ELF dependencies...')
-    main_binary = 'duckling.cpython-{0}-{1}-linux-gnu.so'.format(
+    main_binary = 'duckling-native.cpython-{0}-{1}-linux-gnu.so'.format(
         get_abi_tag().replace('cp', ''), PLATFORM_ARCH)
     output_library = osp.join(output_dir, 'duckling')
     binary_path = osp.join(output_library, main_binary)
