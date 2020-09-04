@@ -1,6 +1,6 @@
 [package]
 name = "pyduckling-native"
-version = "0.1.0-dev0"
+version = "0.1.0"
 authors = ["Edgar Andrés Margffoy Tuay <andfoy@gmail.com>"]
 description = "Rust-based Python wrapper for duckling library in Haskell."
 repository = "https://github.com/treble-ai/pyduckling"
