@@ -131,6 +131,8 @@ This wrapper allows access to all the dimensions and languages available on Duck
 | `url` | "https://api.wit.ai/message?q=hi" | `{"value":"https://api.wit.ai/message?q=hi","domain":"api.wit.ai"}` |
 | `volume` | "4 gallons" | `{"value":4,"type":"value","unit":"gallon"}` |
 
+## Reference Docs
+https://docs.contour.so/treble-ai/pyduckling/getting-started
 
 ## Changelog
 Please see our [CHANGELOG](https://github.com/treble-ai/pyduckling/blob/master/CHANGELOG.md) file to learn more about our new features and improvements.
